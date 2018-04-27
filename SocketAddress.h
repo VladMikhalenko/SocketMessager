@@ -10,6 +10,10 @@ public:
     SocketAddress();
     SocketAddress(unsigned short port);
     SocketAddress(const char* ip, unsigned short port);
+
+    sockaddr_in& GetSocketAddress() const;
+    char * GetIP() const;
+    unsigned short getPort() const;
 };
 
 #endif // SOCKETADDRESS_H

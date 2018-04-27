@@ -15,7 +15,7 @@ public:
     MessageServer();
     void InitSocket();
     void CloseSocket();
-
+    //int  Send(Socket _sock,std::string msg,)
     void SetSocketAddress(unsigned char family=AF_INET, unsigned short port=PORT, const char *ip ="127.0.0.1");
 };
 

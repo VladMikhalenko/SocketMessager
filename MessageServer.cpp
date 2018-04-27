@@ -2,7 +2,7 @@
 #include <iostream>
 
 
-MessageServer::MessageServer()
+MessageServer::MessageServer():_socket(),_address()
 {
 
 }
