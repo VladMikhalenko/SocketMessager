@@ -7,7 +7,7 @@ MessageServer::MessageServer()
 bool MessageServer::InitSocket()
 {
     winSocketVersion=MAKEWORD(2,0);
-    int initError=WSAStartup(winSocketVersion,_socketData);
+    int initError=WSAStartup(winSocketVersion,&_socketData);
     if(initError!=0)
     {
         return false;
@@ -16,31 +16,25 @@ bool MessageServer::InitSocket()
     {
         _socket=socket(PF_INET,SOCK_DGRAM,0);
         std::string error="";
-        if(ProcessError(_socket,error))
+        if(_socket==INVALID_SOCKET)
         {
-            return true;
-        }
-        else
-        {
-            std::cout<<"Socket creation failed:"<<error<<endl;
+            ProcessError(error);
+            std::cout<<"Socket creation failed:"<<error<<std::endl;
             return false;
         }
+        return true;
     }
 }
 
-bool MessageServer::ProcessError(SOCKET sock,std::string &what)
+void MessageServer::ProcessError(std::string &what)
 {
     std::string errorMessage="";
-    bool isOK=true;
-    if (sock == INVALID_SOCKET)
+    int wsError = WSAGetLastError();
+    switch (wsError)
     {
-        isOK=false;
-        int wsError = WSAGetLastError();
-        switch (wsError)
-        {
-            case WSANOTINITIALISED: ///перед вызовом socket() надо успешно завершить вызов WSAStartup(), бороться с этим можно только одним способом: лечим склероз
-                errorMessage="WSA not initialised error occur\n";
-                break;
+        case WSANOTINITIALISED: ///перед вызовом socket() надо успешно завершить вызов WSAStartup(), бороться с этим можно только одним способом: лечим склероз
+            errorMessage="WSA not initialised error occur\n";
+            break;
             case WSAENETDOWN:       //- ошибка в сетевой подсистеме: проверяем, правильно ли настроено оборудование и функционирует ли оно
                 errorMessage="WSA enet down error occur\n";
                 break;
@@ -68,6 +62,17 @@ bool MessageServer::ProcessError(SOCKET sock,std::string &what)
             default:
                 break;
         }
-    }
-    return isOK;
+    what=errorMessage;
+}
+
+
+bool MessageServer::CloseSocket()
+{
+    int socketCloseError=closesocket(_socket);
+    std::string what="";
+    if(socketCloseError == SOCKET_ERROR)
+        ProcessError(what);
+    socketCloseError = WSACleanup ();
+    if (socketCloseError == SOCKET_ERROR)
+        ProcessError(what);
 }

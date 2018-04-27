@@ -11,7 +11,7 @@ class MessageServer
     SOCKET _socket;
 
     bool InitSocket();
-    bool ProcessError(SOCKET sock,std::string what);
+    void ProcessError(std::string &what);
     bool CloseSocket();
 public:
     MessageServer();
